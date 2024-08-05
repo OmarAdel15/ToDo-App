@@ -110,7 +110,7 @@ const tasksModel = ref({
   editing: null,
 });
 
-const createTask = (data, form$) => {
+const createTask = (form$) => {
   addToStorage(form$.data);
   syncFromStorage();
   form$.reset();
