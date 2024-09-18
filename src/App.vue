@@ -6,10 +6,9 @@
         <TextElement
           name="task"
           placeholder="Add a task"
-          floating="Task Name"
+          floating="Task name"
           rules="required"
         />
-
         <RadiogroupElement
           name="type"
           :items="['Personal', 'Business']"
@@ -18,7 +17,7 @@
         />
 
         <ButtonElement name="button" align="right" submits>
-          Add Task
+          Submit
         </ButtonElement>
       </Vueform>
       <hr class="divider" />
@@ -63,6 +62,7 @@
                 :conditions="[['editing', index]]"
                 :columns="6"
               />
+
               <RadiogroupElement
                 name="type"
                 view="tabs"
@@ -73,6 +73,7 @@
                   Business: 'B',
                 }"
               />
+
               <ButtonElement
                 name="cancel"
                 :conditions="[['editing', index]]"
@@ -96,6 +97,7 @@
             </ObjectElement>
           </template>
         </ListElement>
+
         <HiddenElement name="editing" />
       </Vueform>
     </div>
@@ -103,28 +105,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { onMounted, ref } from "vue";
 
 const tasksModel = ref({
   tasks: [],
   editing: null,
 });
 
-const createTask = (form$) => {
+const createTask = (data, form$) => {
   addToStorage(form$.data);
   syncFromStorage();
+
   form$.reset();
 };
 
 const addToStorage = (data) => {
   let storageData = localStorage.getItem("tasks");
   storageData = storageData ? JSON.parse(storageData) : [];
+
   storageData.push(data);
   localStorage.setItem("tasks", JSON.stringify(storageData));
 };
 
 const syncFromStorage = () => {
   let tasks = localStorage.getItem("tasks");
+
   tasksModel.value = {
     tasks: tasks ? JSON.parse(tasks) : [],
   };
@@ -186,7 +191,7 @@ h1 {
   }
 
   &.is-business {
-    border-left: 3px solid rgb(197, 7, 197);
+    border-left: 3px solid purple;
   }
 }
 
