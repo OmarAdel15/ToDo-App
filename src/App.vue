@@ -1,9 +1,11 @@
 <template>
   <div class="page">
     <div class="container">
-      <h1>Todo app</h1>
+      <h1>Tasks app</h1>
 
+      <!-- Adding a task -->
       <Vueform size="lg" :endpoint="createTask">
+        <!-- Task input -->
         <TextElement
           name="task"
           placeholder="Add a task"
@@ -11,6 +13,7 @@
           rules="required"
         />
 
+        <!-- Task type -->
         <RadiogroupElement
           name="type"
           :items="['Personal', 'Business']"
@@ -18,6 +21,7 @@
           default="Personal"
         />
 
+        <!-- Submit -->
         <ButtonElement name="button" align="right" submits>
           Submit
         </ButtonElement>
@@ -25,15 +29,13 @@
 
       <hr class="divider" />
 
+      <!-- Task list -->
       <Vueform v-model="tasksModel" sync>
+        <!-- List of tasks -->
         <ListElement
           name="tasks"
-          :controls="{
-            add: false,
-          }"
-          :add-class="{
-            handle: 'task-sort-handle',
-          }"
+          :controls="{ add: false }"
+          :add-class="{ handle: 'task-sort-handle' }"
           sort
           @sort="syncToStorage"
           @remove="syncToStorage"
@@ -43,41 +45,42 @@
               :name="index"
               :add-class="[
                 'task-container',
-                tasksModel.tasks[index].type === 'Personal'
+                tasksModel.tasks?.[index]?.type === 'Personal'
                   ? 'is-personal'
                   : 'is-business',
               ]"
             >
+              <!-- Edit button -->
               <ButtonElement
-                :label="`#${index + 1} - ${tasksModel.tasks[index].task}`"
+                :label="`#${index + 1} - ${
+                  tasksModel.tasks?.[index]?.task || ''
+                }`"
                 name="edit"
                 align="right"
                 :conditions="[['editing', '!=', index]]"
-                :columns="{
-                  label: 8,
-                }"
+                :columns="{ label: 8 }"
                 @click="edit(index)"
               >
                 Edit
               </ButtonElement>
 
+              <!-- Task input when editing -->
               <TextElement
                 name="task"
                 :conditions="[['editing', index]]"
                 :columns="6"
               />
 
+              <!-- Task type when editing -->
               <RadiogroupElement
                 name="type"
                 view="tabs"
                 :conditions="[['editing', index]]"
                 :columns="2"
-                :items="{
-                  Personal: 'P',
-                  Business: 'B',
-                }"
+                :items="{ Personal: 'P', Business: 'B' }"
               />
 
+              <!-- Cancel task editing -->
               <ButtonElement
                 name="cancel"
                 :conditions="[['editing', index]]"
@@ -89,6 +92,7 @@
                 Cancel
               </ButtonElement>
 
+              <!-- Save task -->
               <ButtonElement
                 name="save"
                 :conditions="[['editing', index]]"
@@ -102,6 +106,7 @@
           </template>
         </ListElement>
 
+        <!-- Store which field we're editing -->
         <HiddenElement name="editing" />
       </Vueform>
     </div>
@@ -119,21 +124,18 @@ const tasksModel = ref({
 const createTask = (data, form$) => {
   addToStorage(form$.data);
   syncFromStorage();
-
   form$.reset();
 };
 
 const addToStorage = (data) => {
   let storageData = localStorage.getItem("tasks");
   storageData = storageData ? JSON.parse(storageData) : [];
-
   storageData.push(data);
   localStorage.setItem("tasks", JSON.stringify(storageData));
 };
 
 const syncFromStorage = () => {
-  let tasks = localStorage.getItem("tasks");
-
+  const tasks = localStorage.getItem("tasks");
   tasksModel.value = {
     tasks: tasks ? JSON.parse(tasks) : [],
   };
@@ -147,7 +149,7 @@ const edit = (index) => {
   tasksModel.value.editing = index;
 };
 
-const cancel = (index) => {
+const cancel = () => {
   tasksModel.value.editing = null;
   syncFromStorage();
 };
@@ -162,7 +164,7 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss">
+<style scoped>
 .page {
   background: #f1f5f9;
   width: 100%;
@@ -197,14 +199,5 @@ h1 {
   &.is-business {
     border-left: 3px solid purple;
   }
-}
-
-.task-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.vf-list-handle.task-sort-handle {
-  top: 1rem;
 }
 </style>
